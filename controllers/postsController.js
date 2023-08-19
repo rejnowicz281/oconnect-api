@@ -3,6 +3,7 @@ const asyncHandler = require("../asyncHandler");
 
 const Post = require("../models/post");
 const Friendship = require("../models/friendship");
+const Comment = require("../models/comment");
 
 const { body, validationResult } = require("express-validator");
 const generateImageKitObject = require("../helpers/generateImageKitObject");
@@ -55,6 +56,8 @@ exports.create = [
             photo,
         }).populate("user", "first_name last_name avatar");
 
+        console.log(photo);
+
         await post.save();
 
         const data = {
@@ -92,7 +95,7 @@ exports.update = [
         // if req.files.photo exists, update photo and delete old photo from imagekit
         let photo;
         if (req.files?.photo?.mimetype.startsWith("image")) {
-            if (post.photo) {
+            if (post.photo?.fileId) {
                 imagekit
                     .deleteFile(post.photo.fileId)
                     .then((result) => {
@@ -129,6 +132,8 @@ exports.destroy = asyncHandler(async (req, res, next) => {
 
     const post = await Post.findById(id);
 
+    console.log(post.photo);
+
     if (!post) throw new Error("Post not found");
 
     if (!post.user.equals(req.user._id)) {
@@ -137,7 +142,7 @@ exports.destroy = asyncHandler(async (req, res, next) => {
         throw error;
     }
 
-    if (post.photo) {
+    if (post.photo?.fileId) {
         imagekit
             .deleteFile(post.photo.fileId)
             .then((result) => {
@@ -147,6 +152,8 @@ exports.destroy = asyncHandler(async (req, res, next) => {
                 debug(err);
             });
     }
+
+    await Comment.deleteMany({ post: id });
 
     await Post.findByIdAndDelete(id);
 
