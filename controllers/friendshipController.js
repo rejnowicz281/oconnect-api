@@ -7,9 +7,14 @@ const User = require("../models/user");
 exports.index = asyncHandler(async (req, res, next) => {
     const friendships = await Friendship.find({ $or: [{ user1: req.user._id }, { user2: req.user._id }] }); // Find all friendships where the user is either user1 or user2
 
+    const friends = friendships.map((friendship) => {
+        if (friendship.user1.equals(req.user._id)) return friendship.user2;
+        else return friendship.user1;
+    });
+
     const data = {
         message: "Friendship Index",
-        friendships,
+        friends,
     };
     debug(data);
     res.status(200).json(data);
