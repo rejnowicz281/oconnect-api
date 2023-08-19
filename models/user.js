@@ -22,7 +22,8 @@ const userSchema = new Schema({
         trim: true,
     },
     avatar: {
-        type: String,
+        url: String,
+        fileId: String,
     },
     provider: {
         type: String,
