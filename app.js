@@ -8,6 +8,10 @@ const helmet = require("helmet");
 const createError = require("http-errors");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const fileupload = require("express-fileupload");
+
+const authRouter = require("./routes/auth");
 
 const app = express();
 
@@ -26,6 +30,9 @@ mongoose
         debug(err);
     });
 
+// passport config
+require("./helpers/passportConfig");
+
 // middleware and static files
 app.use(
     cors({
@@ -34,7 +41,14 @@ app.use(
 );
 app.use(compression());
 app.use(helmet());
+app.use(cookieParser());
 app.use(express.json());
+app.use(
+    fileupload({
+        limits: { fileSize: 20 * 1024 * 1024 },
+        abortOnLimit: true,
+    })
+);
 // app.use(
 //     rateLimit({
 //         windowMs: 1 * 60 * 1000, // 1 minute
@@ -46,6 +60,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
     res.send("Hello World");
 });
+app.use(authRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
