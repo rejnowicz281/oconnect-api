@@ -7,13 +7,17 @@ const User = require("../models/user");
 exports.indexInvitesSent = asyncHandler(async (req, res, next) => {
     const invitesSent = await Invite.find({ inviter: req.user._id });
 
-    res.status(200).json({ message: "Invites Sent", invitesSent });
+    const data = { message: "Invites Sent", invitesSent };
+    debug(data);
+    res.status(200).json(data);
 });
 
 exports.indexInvitesReceived = asyncHandler(async (req, res, next) => {
     const invitesReceived = await Invite.find({ invitee: req.user._id });
 
-    res.status(200).json({ message: "Invites Received", invitesReceived });
+    const data = { message: "Invites Received", invitesReceived };
+    debug(data);
+    res.status(200).json(data);
 });
 
 exports.create = asyncHandler(async (req, res, next) => {
@@ -47,7 +51,9 @@ exports.create = asyncHandler(async (req, res, next) => {
 
     const invite = await Invite.create({ inviter: req.user._id, invitee: invitee_id });
 
-    res.status(201).json({ message: "Invite Created", invite });
+    const data = { message: "Invite Created", invite };
+    debug(data);
+    res.status(201).json(data);
 });
 
 exports.destroy = asyncHandler(async (req, res, next) => {
@@ -60,6 +66,7 @@ exports.destroy = asyncHandler(async (req, res, next) => {
     if (!invite.inviter.equals(req.user._id) && !invite.invitee.equals(req.user._id)) return res.sendStatus(403);
 
     await Invite.findByIdAndDelete(id);
-
-    res.status(200).json({ message: "Invite Deleted", invite });
+    const data = { message: "Invite Deleted", invite };
+    debug(data);
+    res.status(200).json(data);
 });
