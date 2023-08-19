@@ -36,7 +36,7 @@ exports.register = [
             const result = await imagekit.upload({
                 file: req.files.avatar.data,
                 fileName: req.files.avatar.name,
-                folder: "/obook/avatars",
+                folder: "/oconnect/avatars",
             });
             avatar = result.url;
         }
