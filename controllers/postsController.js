@@ -45,8 +45,9 @@ exports.create = [
 
         if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-        let photo = {};
-        if (req.files?.photo?.mimetype.startsWith("image")) photo = await generateImageKitObject(req.files.photo);
+        let photo;
+        if (req.files?.photo?.mimetype.startsWith("image"))
+            photo = await generateImageKitObject(req.files.photo, "oconnect/posts");
 
         const post = await new Post({
             text: req.body.text,
