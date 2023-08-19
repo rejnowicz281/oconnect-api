@@ -127,6 +127,30 @@ exports.update = [
     }),
 ];
 
+exports.like = asyncHandler(async (req, res, next) => {
+    const id = req.params.id;
+
+    const post = await Post.findById(id);
+
+    if (!post) {
+        const error = new Error("Post not found");
+        error.status = 404;
+        throw error;
+    }
+
+    if (post.likes.includes(req.user._id)) {
+        await Post.findByIdAndUpdate(id, {
+            $pull: { likes: req.user._id },
+        });
+        res.status(200).json({ message: `Post ${id} unliked` });
+    } else {
+        await Post.findByIdAndUpdate(id, {
+            $push: { likes: req.user._id },
+        });
+        res.status(200).json({ message: `Post ${id} liked` });
+    }
+});
+
 exports.destroy = asyncHandler(async (req, res, next) => {
     const id = req.params.id;
 
