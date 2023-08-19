@@ -3,8 +3,9 @@ const debug = require("debug")("app:authController");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 const asyncHandler = require("../asyncHandler");
-const imagekit = require("../imagekit");
 
+const generateImageKitObject = require("../helpers/generateImageKitObject");
+const imagekit = require("../imagekit");
 const { body, validationResult } = require("express-validator");
 
 exports.register = [
@@ -32,14 +33,7 @@ exports.register = [
 
         let avatar;
 
-        if (req.files?.avatar?.mimetype.startsWith("image")) {
-            const result = await imagekit.upload({
-                file: req.files.avatar.data,
-                fileName: req.files.avatar.name,
-                folder: "/oconnect/avatars",
-            });
-            avatar = result.url;
-        }
+        if (req.files?.avatar?.mimetype.startsWith("image")) avatar = await generateImageKitObject(req.files.avatar);
 
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
@@ -48,7 +42,7 @@ exports.register = [
             password: hashedPassword,
             first_name: req.body.first_name,
             last_name: req.body.last_name,
-            avatar: avatar || process.env.DEFAULT_AVATAR_URL,
+            avatar: avatar || { url: process.env.DEFAULT_AVATAR_URL },
         };
 
         const user = new User(userData);
