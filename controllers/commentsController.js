@@ -9,6 +9,14 @@ const { body, validationResult } = require("express-validator");
 exports.index = asyncHandler(async (req, res, next) => {
     const postId = req.params.postId;
 
+    const post = await Post.findById(postId);
+
+    if (!post) {
+        const error = new Error("Post not found");
+        error.status = 404;
+        throw error;
+    }
+
     const comments = await Comment.find({ post: postId }).populate("user", "first_name last_name avatar");
 
     const data = {
