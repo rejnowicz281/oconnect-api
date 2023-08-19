@@ -1,5 +1,6 @@
 const debug = require("debug")("app:invitesController");
 const Invite = require("../models/invite");
+const Friendship = require("../models/friendship");
 const asyncHandler = require("../asyncHandler");
 const User = require("../models/user");
 
@@ -33,6 +34,16 @@ exports.create = asyncHandler(async (req, res, next) => {
     const inviterInvited = await Invite.findOne({ inviter: invitee_id, invitee: req.user._id });
 
     if (inviterInvited) throw new Error("Invitee has already invited you");
+
+    // Check if invitee is already friends with the inviter
+    const friendship = await Friendship.findOne({
+        $or: [
+            { user1: req.user._id, user2: invitee_id },
+            { user1: invitee_id, user2: req.user._id },
+        ],
+    });
+
+    if (friendship) throw new Error("Invitee is already friends with you");
 
     const invite = await Invite.create({ inviter: req.user._id, invitee: invitee_id });
 
