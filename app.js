@@ -12,6 +12,7 @@ const cookieParser = require("cookie-parser");
 const fileupload = require("express-fileupload");
 
 const authRouter = require("./routes/auth");
+const inviteRouter = require("./routes/invites");
 
 const app = express();
 
@@ -61,6 +62,7 @@ app.get("/", (req, res) => {
     res.send("Hello World");
 });
 app.use(authRouter);
+app.use("/invites", inviteRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
