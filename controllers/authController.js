@@ -33,7 +33,8 @@ exports.register = [
 
         let avatar;
 
-        if (req.files?.avatar?.mimetype.startsWith("image")) avatar = await generateImageKitObject(req.files.avatar);
+        if (req.files?.avatar?.mimetype.startsWith("image"))
+            avatar = await generateImageKitObject(req.files.avatar, "oconnect/avatars");
 
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
