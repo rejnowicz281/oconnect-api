@@ -87,6 +87,32 @@ exports.login = asyncHandler(async (req, res, next) => {
         .json({ message: "Login Successful" });
 });
 
+exports.demoLogin = asyncHandler(async (req, res, next) => {
+    let user = await User.findOne({ email: "demo@gmail.com" });
+
+    if (!user) {
+        debug("Demo user not found, creating new demo user...");
+        user = new User({
+            email: "demo@gmail.com",
+            password: 123,
+            first_name: "Demo",
+            last_name: "User",
+            avatar: process.env.DEFAULT_AVATAR_URL,
+        });
+        await user.save();
+    }
+
+    const token = generateAccessToken(user);
+
+    res.cookie("access_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 12 * 60 * 60 * 1000, // 12 hours
+    })
+        .status(200)
+        .json({ message: "Demo Login Successful" });
+});
+
 exports.logout = asyncHandler(async (req, res, next) => {
     return res.clearCookie("access_token").status(200).json({ message: "Logout Successful" });
 });
