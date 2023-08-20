@@ -39,7 +39,8 @@ require("./helpers/passportConfig");
 // middleware and static files
 app.use(
     cors({
-        origin: "*",
+        origin: "http://localhost:5173",
+        credentials: true,
     })
 );
 app.use(compression());
