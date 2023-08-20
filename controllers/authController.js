@@ -67,10 +67,7 @@ exports.login = asyncHandler(async (req, res, next) => {
 
     if (!user) return res.status(401).json({ message: "Invalid email or password" });
 
-    const validPassword = bcrypt.compare(req.body.password, user.password, (err, result) => {
-        if (err) throw err;
-        return result;
-    });
+    const validPassword = bcrypt.compare(req.body.password, user.password);
 
     if (!validPassword) return res.status(401).json({ message: "Invalid email or password" });
 
