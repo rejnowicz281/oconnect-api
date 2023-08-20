@@ -95,7 +95,7 @@ exports.demoLogin = asyncHandler(async (req, res, next) => {
             password: 123,
             first_name: "Demo",
             last_name: "User",
-            avatar: process.env.DEFAULT_AVATAR_URL,
+            avatar: { url: process.env.DEFAULT_AVATAR_URL },
         });
         await user.save();
     }

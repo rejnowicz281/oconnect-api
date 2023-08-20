@@ -56,7 +56,7 @@ passport.use(
                     subject: profile.id,
                     first_name: profile.name.givenName,
                     last_name: profile.name.familyName,
-                    avatar: profile.photos[0].value,
+                    avatar: { url: profile.photos[0].value },
                 });
                 await newUser.save();
                 facebookDebug("New user created, logging in...");
