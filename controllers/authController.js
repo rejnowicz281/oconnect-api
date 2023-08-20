@@ -1,11 +1,10 @@
-const generateAccessToken = require("../helpers/generateAccessToken");
 const debug = require("debug")("app:authController");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 const asyncHandler = require("../asyncHandler");
+const { generateAccessToken, generateRefreshToken } = require("../helpers/generateTokens");
 
 const generateImageKitObject = require("../helpers/generateImageKitObject");
-const imagekit = require("../imagekit");
 const { body, validationResult } = require("express-validator");
 
 exports.register = [
@@ -50,15 +49,16 @@ exports.register = [
 
         await user.save();
 
-        const token = generateAccessToken(user);
+        const refresh_token = generateRefreshToken(user._id);
+        const access_token = generateAccessToken(user);
 
-        res.cookie("access_token", token, {
+        res.cookie("refresh_token", refresh_token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            maxAge: 12 * 60 * 60 * 1000, // 12 hours
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         })
             .status(200)
-            .json({ message: "Register Successful" });
+            .json({ message: "Register Successful", access_token });
     }),
 ];
 
@@ -74,15 +74,16 @@ exports.login = asyncHandler(async (req, res, next) => {
 
     if (!validPassword) return res.status(401).json({ message: "Invalid email or password" });
 
-    const token = generateAccessToken(user);
+    const refresh_token = generateRefreshToken(user._id);
+    const access_token = generateAccessToken(user);
 
-    res.cookie("access_token", token, {
+    res.cookie("refresh_token", refresh_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        maxAge: 12 * 60 * 60 * 1000, // 12 hours
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     })
         .status(200)
-        .json({ message: "Login Successful" });
+        .json({ message: "Login Successful", access_token });
 });
 
 exports.demoLogin = asyncHandler(async (req, res, next) => {
@@ -100,17 +101,18 @@ exports.demoLogin = asyncHandler(async (req, res, next) => {
         await user.save();
     }
 
-    const token = generateAccessToken(user);
+    const refresh_token = generateRefreshToken(user._id);
+    const access_token = generateAccessToken(user);
 
-    res.cookie("access_token", token, {
+    res.cookie("refresh_token", refresh_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        maxAge: 12 * 60 * 60 * 1000, // 12 hours
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     })
         .status(200)
-        .json({ message: "Demo Login Successful" });
+        .json({ message: "Demo Login Successful", access_token });
 });
 
 exports.logout = asyncHandler(async (req, res, next) => {
-    return res.clearCookie("access_token").status(200).json({ message: "Logout Successful" });
+    return res.clearCookie("refresh_token").status(200).json({ message: "Logout Successful" });
 });

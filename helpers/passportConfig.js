@@ -1,21 +1,24 @@
 const passport = require("passport");
 const User = require("../models/user");
 const JWTStrategy = require("passport-jwt").Strategy;
+const ExtractJWT = require("passport-jwt").ExtractJwt;
 const FacebookTokenStrategy = require("passport-facebook-token");
 const facebookDebug = require("debug")("app:facebook");
-const jwtDebug = require("debug")("app:jwt");
+const accessTokenDebug = require("debug")("app:jwtAccessToken");
+const refreshTokenDebug = require("debug")("app:jwtRefreshToken");
 
 const cookieExtractor = function (req) {
     let token = null;
-    if (req && req.cookies) token = req.cookies["access_token"];
+    if (req && req.cookies) token = req.cookies["refresh_token"];
 
     return token;
 };
 
 passport.use(
+    "jwtRefreshToken",
     new JWTStrategy(
         {
-            secretOrKey: process.env.JWT_SECRET,
+            secretOrKey: process.env.REFRESH_TOKEN_SECRET,
             jwtFromRequest: cookieExtractor,
         },
         async (payload, done) => {
@@ -23,10 +26,35 @@ passport.use(
                 const user = await User.findById(payload.sub);
 
                 if (user) {
-                    jwtDebug("User is authenticated - proceeding...");
+                    refreshTokenDebug("Refresh token valid - proceeding...");
                     return done(null, user);
                 } else {
-                    jwtDebug("User is not authenticated - aborting...");
+                    refreshTokenDebug("Refresh token invalid - aborting...");
+                    return done(null, false);
+                }
+            } catch (error) {
+                done(error, null);
+            }
+        }
+    )
+);
+
+passport.use(
+    "jwtAccessToken",
+    new JWTStrategy(
+        {
+            secretOrKey: process.env.ACCESS_TOKEN_SECRET,
+            jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+        },
+        async (payload, done) => {
+            try {
+                const user = await User.findById(payload.sub);
+
+                if (user) {
+                    accessTokenDebug("User is authenticated - proceeding...");
+                    return done(null, user);
+                } else {
+                    accessTokenDebug("User is not authenticated - aborting...");
                     return done(null, false);
                 }
             } catch (error) {

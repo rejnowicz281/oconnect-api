@@ -4,9 +4,9 @@ const router = express.Router();
 
 const { create, destroy, indexInvitesReceived, indexInvitesSent } = require("../controllers/invitesController");
 
-router.get("/sent", passport.authenticate("jwt", { session: false }), indexInvitesSent);
-router.get("/received", passport.authenticate("jwt", { session: false }), indexInvitesReceived);
-router.post("/", passport.authenticate("jwt", { session: false }), create);
-router.delete("/:id", passport.authenticate("jwt", { session: false }), destroy);
+router.get("/sent", passport.authenticate("jwtAccessToken", { session: false }), indexInvitesSent);
+router.get("/received", passport.authenticate("jwtAccessToken", { session: false }), indexInvitesReceived);
+router.post("/", passport.authenticate("jwtAccessToken", { session: false }), create);
+router.delete("/:id", passport.authenticate("jwtAccessToken", { session: false }), destroy);
 
 module.exports = router;
