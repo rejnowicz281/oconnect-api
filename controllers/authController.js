@@ -11,6 +11,7 @@ exports.register = [
     body("email")
         .trim()
         .isLength({ min: 1 })
+        .withMessage("Email must not be empty")
         .isEmail()
         .withMessage("Email must be a valid email address")
         .custom(async (value) => {
