@@ -10,8 +10,7 @@ router.post("/register", register);
 router.post("/login", login);
 router.post("/demo", demoLogin);
 router.post("/logout", logout);
-router.get("/facebook", passport.authenticate("facebook"));
-router.get("/facebook/callback", passport.authenticate("facebook", { session: false }), (req, res) => {
+router.post("/facebook", passport.authenticate("facebook-token", { session: false }), (req, res) => {
     const token = generateAccessToken(req.user);
 
     res.cookie("access_token", token, {
