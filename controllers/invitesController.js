@@ -5,7 +5,7 @@ const asyncHandler = require("../asyncHandler");
 const User = require("../models/user");
 
 exports.indexInvitesSent = asyncHandler(async (req, res, next) => {
-    const invitesSent = await Invite.find({ inviter: req.user._id });
+    const invitesSent = await Invite.find({ inviter: req.user._id }).populate("invitee", "first_name last_name avatar");
 
     const data = { message: "Invites Sent", invitesSent };
     debug(data);
@@ -13,7 +13,10 @@ exports.indexInvitesSent = asyncHandler(async (req, res, next) => {
 });
 
 exports.indexInvitesReceived = asyncHandler(async (req, res, next) => {
-    const invitesReceived = await Invite.find({ invitee: req.user._id });
+    const invitesReceived = await Invite.find({ invitee: req.user._id }).populate(
+        "inviter",
+        "first_name last_name avatar"
+    );
 
     const data = { message: "Invites Received", invitesReceived };
     debug(data);

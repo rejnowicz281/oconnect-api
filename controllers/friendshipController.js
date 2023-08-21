@@ -5,11 +5,18 @@ const asyncHandler = require("../asyncHandler");
 const User = require("../models/user");
 
 exports.index = asyncHandler(async (req, res, next) => {
-    const friendships = await Friendship.find({ $or: [{ user1: req.user._id }, { user2: req.user._id }] }); // Find all friendships where the user is either user1 or user2
+    const friendships = await Friendship.find({ $or: [{ user1: req.user._id }, { user2: req.user._id }] })
+        .populate("user1", "first_name last_name avatar")
+        .populate("user2", "first_name last_name avatar");
 
     const friends = friendships.map((friendship) => {
-        if (friendship.user1.equals(req.user._id)) return friendship.user2;
-        else return friendship.user1;
+        let friend;
+        if (friendship.user1.equals(req.user._id)) friend = friendship.user2;
+        else friend = friendship.user1;
+        return {
+            info: friend,
+            friendship_id: friendship._id,
+        };
     });
 
     const data = {
