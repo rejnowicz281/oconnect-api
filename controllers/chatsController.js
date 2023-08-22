@@ -6,7 +6,9 @@ const Chat = require("../models/chat");
 exports.show = asyncHandler(async (req, res, next) => {
     const id = req.params.id;
 
-    const chat = await Chat.findById(id).populate("users", "first_name last_name avatar");
+    const chat = await Chat.findById(id)
+        .populate("users", "first_name last_name avatar")
+        .populate("messages.user", "first_name last_name avatar");
 
     if (!chat) {
         const error = new Error("Chat not found");
