@@ -1,8 +1,8 @@
 const debug = require("debug")("app:friendshipController");
 const Invite = require("../models/invite");
 const Friendship = require("../models/friendship");
+const Chat = require("../models/chat");
 const asyncHandler = require("../asyncHandler");
-const User = require("../models/user");
 
 exports.index = asyncHandler(async (req, res, next) => {
     const friendships = await Friendship.find({ $or: [{ user1: req.user._id }, { user2: req.user._id }] })
@@ -16,6 +16,7 @@ exports.index = asyncHandler(async (req, res, next) => {
         return {
             info: friend,
             friendship_id: friendship._id,
+            chat_id: friendship.chat,
         };
     });
 
@@ -36,7 +37,10 @@ exports.create = asyncHandler(async (req, res, next) => {
 
     if (!invite.invitee.equals(req.user._id)) return res.sendStatus(403); // If the invitee is not the current user, return 403 Forbidden
 
-    const friendship = await Friendship.create({ user1: invite.inviter, user2: invite.invitee });
+    // create a chat for the two users
+    const chat = await Chat.create({ users: [invite.inviter, invite.invitee] });
+
+    const friendship = await Friendship.create({ user1: invite.inviter, user2: invite.invitee, chat: chat._id });
 
     await Invite.findByIdAndDelete(invite_id);
 
@@ -56,6 +60,8 @@ exports.destroy = asyncHandler(async (req, res, next) => {
     if (!friendship) throw new Error("Friendship not found");
 
     if (!friendship.user1.equals(req.user._id) && !friendship.user2.equals(req.user._id)) return res.sendStatus(403);
+
+    await Chat.findOneAndDelete({ id: friendship.chat });
 
     await Friendship.findByIdAndDelete(id);
 

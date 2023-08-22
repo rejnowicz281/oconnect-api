@@ -13,6 +13,11 @@ const friendshipSchema = new Schema({
         ref: "User",
         required: true,
     },
+    chat: {
+        type: Schema.Types.ObjectId,
+        ref: "Chat",
+        required: true,
+    },
 });
 
 module.exports = mongoose.model("Friendship", friendshipSchema);

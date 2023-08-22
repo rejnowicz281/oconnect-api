@@ -11,6 +11,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const fileupload = require("express-fileupload");
 
+const chatRouter = require("./routes/chats");
 const authRouter = require("./routes/auth");
 const inviteRouter = require("./routes/invites");
 const friendshipRouter = require("./routes/friendship");
@@ -70,6 +71,7 @@ app.use("/invites", inviteRouter);
 app.use("/friendships", friendshipRouter);
 app.use("/posts", postRouter);
 app.use("/users", userRouter);
+app.use("/chats", chatRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
