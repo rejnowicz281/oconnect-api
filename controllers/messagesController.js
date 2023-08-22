@@ -19,15 +19,10 @@ exports.create = [
 
         if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
 
-        const message = new Message({
+        const message = await new Message({
             text: req.body.text,
-            user: {
-                _id: req.user._id,
-                first_name: req.user.first_name,
-                last_name: req.user.last_name,
-                avatar: req.user.avatar,
-            },
-        });
+            user: req.user._id,
+        }).populate("user", "first_name last_name avatar");
 
         const chatId = req.params.chatId;
 
