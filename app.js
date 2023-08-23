@@ -20,6 +20,8 @@ const userRouter = require("./routes/users");
 
 const app = express();
 
+const { initSocket } = require("./socket");
+
 // connect to mongodb && listen for requests
 const URI = process.env.MONGOD_URI;
 
@@ -27,6 +29,7 @@ mongoose
     .connect(URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         const server = app.listen(3000);
+        initSocket(server);
 
         debug("Connected to DB");
         debug(server.address());
