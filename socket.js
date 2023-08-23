@@ -1,11 +1,8 @@
 const { Server } = require("socket.io");
 const debug = require("debug")("app:socket");
 
-let io;
-
 exports.initSocket = function (server) {
-    console.log("init socket");
-    io = new Server(server, {
+    const io = new Server(server, {
         cors: {
             origin: "*",
         },
@@ -24,8 +21,6 @@ exports.initSocket = function (server) {
             debug("user left chat", chat);
         });
     });
-};
 
-exports.getSocketInstance = function () {
     return io;
 };

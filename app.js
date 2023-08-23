@@ -29,7 +29,10 @@ mongoose
     .connect(URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         const server = app.listen(3000);
-        initSocket(server);
+
+        const io = initSocket(server);
+
+        app.set("socketio", io);
 
         debug("Connected to DB");
         debug(server.address());
