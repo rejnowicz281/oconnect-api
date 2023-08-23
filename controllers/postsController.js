@@ -24,12 +24,10 @@ exports.index = asyncHandler(async (req, res, next) => {
     // Add current user to users
     users.push(req.user._id);
 
-    debug(users);
-
     // Get all posts of the user and their friends
     const posts = await Post.find({
         user: { $in: users },
-    });
+    }).populate("user", "first_name last_name avatar");
 
     const data = {
         message: "Posts Index",
