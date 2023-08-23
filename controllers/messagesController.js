@@ -47,6 +47,10 @@ exports.create = [
             }
         );
 
+        const io = req.app.get("socketio");
+
+        // emit creation of message to all users in chat
+        io.to(chatId).emit("addMessage", message);
         const data = {
             message: "Message created",
             chatId,
@@ -86,6 +90,11 @@ exports.destroy = asyncHandler(async (req, res, next) => {
             },
         }
     );
+
+    const io = req.app.get("socketio");
+
+    // emit deletion of message to all users in chat
+    io.to(chatId).emit("removeMessage", id);
 
     const data = {
         message: "Message destroyed successfully",
