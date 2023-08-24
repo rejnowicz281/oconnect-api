@@ -3,6 +3,7 @@ const asyncHandler = require("../asyncHandler");
 const Friendship = require("../models/friendship");
 const Invite = require("../models/invite");
 const User = require("../models/user");
+const Post = require("../models/post");
 
 exports.index = asyncHandler(async (req, res, next) => {
     const friendships = await Friendship.find({
@@ -43,5 +44,38 @@ exports.index = asyncHandler(async (req, res, next) => {
         users: finalUsers,
     };
     debug("Users Index Successful");
+    res.status(200).json(data);
+});
+
+exports.show = asyncHandler(async (req, res, next) => {
+    const id = req.params.id;
+
+    const user = await User.findById(id).select("first_name last_name avatar");
+
+    if (!user) throw new Error("User not found");
+
+    // Get user's friends
+    const friendships = await Friendship.find({
+        $or: [{ user1: user._id }, { user2: user._id }],
+    })
+        .select("user1 user2")
+        .populate("user1 user2", "first_name last_name avatar");
+
+    const friends = friendships.map((friendship) => {
+        return friendship.user1.equals(user._id) ? friendship.user2 : friendship.user1;
+    });
+
+    // Get user's posts
+    const posts = await Post.find({ user: user._id }).populate("user", "first_name last_name avatar");
+
+    const data = {
+        message: "User Show",
+        user: {
+            ...user._doc,
+            friends,
+            posts,
+        },
+    };
+    debug(data);
     res.status(200).json(data);
 });
