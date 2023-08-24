@@ -4,14 +4,6 @@ const Friendship = require("../models/friendship");
 const asyncHandler = require("../asyncHandler");
 const User = require("../models/user");
 
-exports.indexInvitesSent = asyncHandler(async (req, res, next) => {
-    const invitesSent = await Invite.find({ inviter: req.user._id }).populate("invitee", "first_name last_name avatar");
-
-    const data = { message: "Invites Sent", invitesSent };
-    debug(data);
-    res.status(200).json(data);
-});
-
 exports.indexInvitesReceived = asyncHandler(async (req, res, next) => {
     const invitesReceived = await Invite.find({ invitee: req.user._id }).populate(
         "inviter",
