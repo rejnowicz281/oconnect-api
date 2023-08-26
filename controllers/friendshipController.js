@@ -5,10 +5,12 @@ const Chat = require("../models/chat");
 const asyncHandler = require("../asyncHandler");
 
 exports.index = asyncHandler(async (req, res, next) => {
+    // Get all friendships of current user
     const friendships = await Friendship.find({ $or: [{ user1: req.user._id }, { user2: req.user._id }] })
         .populate("user1", "first_name last_name avatar")
         .populate("user2", "first_name last_name avatar");
 
+    // Get all friends of current user, with their friendship_id and the friendship's chat_id
     const friends = friendships.map((friendship) => {
         let friend;
         if (friendship.user1.equals(req.user._id)) friend = friendship.user2;
@@ -35,7 +37,8 @@ exports.create = asyncHandler(async (req, res, next) => {
 
     if (!invite) throw new Error("You have not been invited to be friends with this user");
 
-    if (!invite.invitee.equals(req.user._id)) return res.sendStatus(403); // If the invitee is not the current user, return 403 Forbidden
+    // If the invitee is not the current user, return 403 Forbidden (can't accept invites for other users)
+    if (!invite.invitee.equals(req.user._id)) return res.sendStatus(403);
 
     // create a chat for the two users
     const chat = await Chat.create({ users: [invite.inviter, invite.invitee] });
@@ -59,8 +62,10 @@ exports.destroy = asyncHandler(async (req, res, next) => {
 
     if (!friendship) throw new Error("Friendship not found");
 
+    // If the current user is not one of the users in the friendship, return 403 Forbidden (can't delete friendships of other users)
     if (!friendship.user1.equals(req.user._id) && !friendship.user2.equals(req.user._id)) return res.sendStatus(403);
 
+    // Delete the chat associated with the friendship
     await Chat.findOneAndDelete({ id: friendship.chat });
 
     await Friendship.findByIdAndDelete(id);

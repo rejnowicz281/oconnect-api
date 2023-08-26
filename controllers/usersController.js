@@ -30,7 +30,7 @@ exports.index = asyncHandler(async (req, res, next) => {
     // Get current user's sent invites
     const invitesSent = await Invite.find({ inviter: req.user._id }).select("invitee");
 
-    // Add invite_id property to users
+    // Add invite_id property to users - if current user has sent an invite to a user, add invite_id to the user object, else add null
     const finalUsers = users.map((user) => {
         const invite = invitesSent.find((invite) => invite.invitee.equals(user._id));
         return {

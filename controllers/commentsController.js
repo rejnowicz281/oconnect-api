@@ -82,7 +82,7 @@ exports.destroy = asyncHandler(async (req, res, next) => {
         throw error;
     }
 
-    // if user is not the owner of the comment or the post
+    // only let the user who created the comment or the user who created the post delete the comment - else return 403 Forbidden
     if (!comment.user.equals(req.user._id) && !post.user.equals(req.user._id)) {
         const error = new Error("You are not authorized to delete this comment");
         error.status = 403;

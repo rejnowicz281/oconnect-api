@@ -10,21 +10,21 @@ const generateImageKitObject = require("../helpers/generateImageKitObject");
 const imagekit = require("../imagekit");
 
 exports.index = asyncHandler(async (req, res, next) => {
-    // Get all friendships where the user is either user1 or user2
+    // Get all friendships of current user
     const friendships = await Friendship.find({
         $or: [{ user1: req.user.id }, { user2: req.user.id }],
     });
 
-    // Get all friends of the user
+    // Get all friends of current user in the 'users' array
     const users = friendships.map((friendship) => {
         if (friendship.user1.equals(req.user._id)) return friendship.user2;
         else return friendship.user1;
     });
 
-    // Add current user to users
+    // Add current user to 'users'
     users.push(req.user._id);
 
-    // Get all posts of the user and their friends
+    // Get all posts of the users in the 'users' array (current user and friends)
     const posts = await Post.find({
         user: { $in: users },
     })
@@ -136,6 +136,7 @@ exports.like = asyncHandler(async (req, res, next) => {
         throw error;
     }
 
+    // if user has already liked post, unlike post, else like post
     if (post.likes.includes(req.user._id)) {
         await Post.findByIdAndUpdate(id, {
             $pull: { likes: req.user._id },
@@ -162,6 +163,7 @@ exports.destroy = asyncHandler(async (req, res, next) => {
         throw error;
     }
 
+    // if post has photo, delete it from imagekit
     if (post.photo?.fileId) {
         imagekit
             .deleteFile(post.photo.fileId)
@@ -173,6 +175,7 @@ exports.destroy = asyncHandler(async (req, res, next) => {
             });
     }
 
+    // delete all comments of post
     await Comment.deleteMany({ post: id });
 
     await Post.findByIdAndDelete(id);
