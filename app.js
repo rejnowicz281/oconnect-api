@@ -10,7 +10,6 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const fileupload = require("express-fileupload");
-const queue = require("express-queue");
 
 const chatRouter = require("./routes/chats");
 const authRouter = require("./routes/auth");
@@ -46,7 +45,6 @@ mongoose
 require("./helpers/passportConfig");
 
 // middleware and static files
-app.use(queue({ activeLimit: 1, queuedLimit: -1 }));
 app.use(
     cors({
         origin: "http://localhost:5173",

@@ -15,7 +15,6 @@
     "debug": "~2.6.9",
     "express": "~4.16.1",
     "express-fileupload": "^1.4.0",
-    "express-queue": "^0.0.13",
     "express-validator": "^7.0.1",
     "helmet": "^7.0.0",
     "http-errors": "~1.6.3",
