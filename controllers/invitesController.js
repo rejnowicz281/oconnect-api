@@ -17,21 +17,22 @@ exports.indexInvitesReceived = asyncHandler(async (req, res, next) => {
 
 exports.create = asyncHandler(async (req, res, next) => {
     const invitee_id = req.body.invitee_id;
-
     if (invitee_id == req.user._id) throw new Error("You cannot invite yourself");
 
-    const invitee = await User.findById(invitee_id);
+    // Find invites where inviter is current user and invitee is invitee_id
+    const invite_exists = await Invite.findOne({ inviter: req.user._id, invitee: invitee_id });
+    if (invite_exists) throw new Error("You already invited this user");
 
+    // Check if invitee exists
+    const invitee = await User.findById(invitee_id);
     if (!invitee) throw new Error("Invitee not found");
 
     // Check if invitee is already invited
     const inviteeInvited = await Invite.findOne({ inviter: req.user._id, invitee: invitee_id });
-
     if (inviteeInvited) throw new Error("Invitee already invited");
 
     // Check if invitee has already invited the inviter
     const inviterInvited = await Invite.findOne({ inviter: invitee_id, invitee: req.user._id });
-
     if (inviterInvited) throw new Error("Invitee has already invited you");
 
     // Check if invitee is already friends with the inviter
@@ -41,7 +42,6 @@ exports.create = asyncHandler(async (req, res, next) => {
             { user1: invitee_id, user2: req.user._id },
         ],
     });
-
     if (friendship) throw new Error("Invitee is already friends with you");
 
     const invite = await Invite.create({ inviter: req.user._id, invitee: invitee_id });
