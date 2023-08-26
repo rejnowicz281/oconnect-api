@@ -19,10 +19,6 @@ exports.create = asyncHandler(async (req, res, next) => {
     const invitee_id = req.body.invitee_id;
     if (invitee_id == req.user._id) throw new Error("You cannot invite yourself");
 
-    // Find invites where inviter is current user and invitee is invitee_id
-    const invite_exists = await Invite.findOne({ inviter: req.user._id, invitee: invitee_id });
-    if (invite_exists) throw new Error("You already invited this user");
-
     // Check if invitee exists
     const invitee = await User.findById(invitee_id);
     if (!invitee) throw new Error("Invitee not found");
