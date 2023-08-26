@@ -89,7 +89,7 @@ exports.destroy = asyncHandler(async (req, res, next) => {
         throw error;
     }
 
-    await comment.delete();
+    await Comment.findByIdAndDelete(commentId);
 
     const data = {
         message: "Comment deleted",
