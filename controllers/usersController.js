@@ -65,8 +65,10 @@ exports.show = asyncHandler(async (req, res, next) => {
         return friendship.user1.equals(user._id) ? friendship.user2 : friendship.user1;
     });
 
-    // Get user's posts
-    const posts = await Post.find({ user: user._id }).populate("user", "first_name last_name avatar");
+    // Get user's posts, sort by newest first
+    const posts = await Post.find({ user: user._id })
+        .populate("user", "first_name last_name avatar")
+        .sort({ createdAt: -1 });
 
     const data = {
         message: "User Show",

@@ -27,7 +27,9 @@ exports.index = asyncHandler(async (req, res, next) => {
     // Get all posts of the user and their friends
     const posts = await Post.find({
         user: { $in: users },
-    }).populate("user", "first_name last_name avatar");
+    })
+        .populate("user", "first_name last_name avatar")
+        .sort({ createdAt: -1 });
 
     const data = {
         message: "Posts Index",
@@ -53,8 +55,6 @@ exports.create = [
             user: req.user._id,
             photo,
         }).populate("user", "first_name last_name avatar");
-
-        console.log(photo);
 
         await post.save();
 
@@ -153,8 +153,6 @@ exports.destroy = asyncHandler(async (req, res, next) => {
     const id = req.params.id;
 
     const post = await Post.findById(id);
-
-    console.log(post.photo);
 
     if (!post) throw new Error("Post not found");
 
