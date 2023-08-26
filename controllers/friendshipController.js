@@ -33,12 +33,25 @@ exports.index = asyncHandler(async (req, res, next) => {
 exports.create = asyncHandler(async (req, res, next) => {
     const invite_id = req.body.invite_id;
 
+    // Check if invite with invite_id exists
     const invite = await Invite.findById(invite_id);
-
     if (!invite) throw new Error("You have not been invited to be friends with this user");
 
     // If the invitee is not the current user, return 403 Forbidden (can't accept invites for other users)
-    if (!invite.invitee.equals(req.user._id)) return res.sendStatus(403);
+    if (!invite.invitee.equals(req.user._id)) {
+        const error = new Error("Cannot accept invites for other users");
+        error.status = 403;
+        throw error;
+    }
+
+    // Check if there already exists a friendship between the two users (inviter and invitee)
+    const friendship_exists = await Friendship.findOne({
+        $or: [
+            { user1: invite.invitee, user2: invite.inviter },
+            { user1: invite.inviter, user2: invite.invitee },
+        ],
+    });
+    if (friendship_exists) throw new Error("You are already friends with this user");
 
     // create a chat for the two users
     const chat = await Chat.create({ users: [invite.inviter, invite.invitee] });
