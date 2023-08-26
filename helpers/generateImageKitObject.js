@@ -2,7 +2,7 @@ const debug = require("debug")("app:generateImageKitObject");
 
 const imagekit = require("../imagekit");
 
-module.exports = async function generateImageKitObject(image, folder) {
+module.exports = async function generateImageKitObject(image, folder, avatar = false) {
     const result = await imagekit.upload({
         file: image.data,
         fileName: image.name,
@@ -10,7 +10,12 @@ module.exports = async function generateImageKitObject(image, folder) {
     });
     debug("Upload result:", result);
     const object = {
-        url: result.url,
+        url: avatar
+            ? imagekit.url({
+                  src: result.url,
+                  transformation: [{ height: 200, width: 200, crop: "force" }],
+              })
+            : result.url,
         fileId: result.fileId,
     };
     debug("Returning object:", object);
