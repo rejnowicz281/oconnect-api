@@ -17,6 +17,7 @@ const inviteRouter = require("./routes/invites");
 const friendshipRouter = require("./routes/friendship");
 const postRouter = require("./routes/posts");
 const userRouter = require("./routes/users");
+const profileRouter = require("./routes/profile");
 
 const app = express();
 
@@ -78,6 +79,7 @@ app.use("/friendships", friendshipRouter);
 app.use("/posts", postRouter);
 app.use("/users", userRouter);
 app.use("/chats", chatRouter);
+app.use(profileRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
