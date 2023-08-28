@@ -48,7 +48,7 @@ require("./helpers/passportConfig");
 // middleware and static files
 app.use(
     cors({
-        origin: "http://localhost:5173",
+        origin: ["https://oconnect.vercel.app", "http://localhost:5173"],
         credentials: true,
     })
 );

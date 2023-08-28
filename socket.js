@@ -4,7 +4,7 @@ const debug = require("debug")("app:socket");
 exports.initSocket = function (server) {
     const io = new Server(server, {
         cors: {
-            origin: "*",
+            origin: ["https://oconnect.vercel.app", "http://localhost:5173"],
         },
     });
 
