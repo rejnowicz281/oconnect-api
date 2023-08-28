@@ -1,6 +1,6 @@
 const express = require("express");
 const passport = require("passport");
-const { generateAccessToken } = require("../helpers/generateTokens");
+const { generateAccessToken, generateRefreshToken } = require("../helpers/generateTokens");
 
 const router = express.Router();
 
