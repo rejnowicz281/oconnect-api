@@ -28,7 +28,12 @@ exports.index = asyncHandler(async (req, res, next) => {
 });
 
 exports.create = [
-    body("text", "Text must not be empty").trim().isLength({ min: 1 }).escape(),
+    body("text")
+        .trim()
+        .isLength({ min: 1 })
+        .withMessage("Text is required")
+        .isLength({ max: 200 })
+        .withMessage("Post is too long"),
     asyncHandler(async (req, res, next) => {
         const errors = validationResult(req);
 
