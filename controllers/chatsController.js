@@ -22,9 +22,15 @@ exports.show = asyncHandler(async (req, res, next) => {
         throw error;
     }
 
+    const otherUser = chat.users.find((user) => !user._id.equals(req.user._id));
+
     const data = {
         message: "Chat found",
-        chat,
+        chat: {
+            _id: chat._id,
+            other_user: otherUser,
+            messages: chat.messages,
+        },
     };
     debug(data);
     res.status(200).json(data);
