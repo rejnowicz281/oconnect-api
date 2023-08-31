@@ -100,6 +100,12 @@ exports.demoLogin = asyncHandler(async (req, res, next) => {
         .json({ message: "Demo Login Successful", access_token });
 });
 
-exports.logout = asyncHandler(async (req, res, next) => {
-    return res.clearCookie("refresh_token").status(200).json({ message: "Logout Successful" });
-});
+exports.refresh = async (req, res, next) => {
+    const access_token = generateAccessToken(req.user);
+
+    res.status(200).json({ message: "Refresh Successful", access_token });
+};
+
+exports.logout = async (req, res, next) => {
+    res.clearCookie("refresh_token").status(200).json({ message: "Logout Successful" });
+};
