@@ -33,3 +33,24 @@ exports.updateAvatar = asyncHandler(async (req, res, next) => {
     debug(data);
     res.status(200).json(data);
 });
+
+exports.resetAvatar = asyncHandler(async (req, res, next) => {
+    if (!req.user?.avatar?.fileId) throw new Error("Custom avatar not found");
+
+    imagekit
+        .deleteFile(req.user.avatar.fileId)
+        .then((result) => {
+            debug(`Imagekit: Image ${req.user.avatar.fileId} deleted`);
+        })
+        .catch((err) => {
+            debug(err);
+        });
+
+    await User.findByIdAndUpdate(req.user._id, { avatar: { url: process.env.DEFAULT_AVATAR_URL } });
+
+    const data = {
+        message: "Avatar reset successful",
+    };
+    debug(data);
+    res.status(200).json(data);
+});
