@@ -5,6 +5,7 @@ const { generateAccessToken, generateRefreshToken } = require("../helpers/genera
 const router = express.Router();
 
 const { register, login, logout, demoLogin } = require("../controllers/authController");
+const refreshTokenOptions = require("../helpers/refreshTokenOptions");
 
 router.post("/register", register);
 router.post("/login", login);
@@ -14,11 +15,7 @@ router.post("/facebook", passport.authenticate("facebook-token", { session: fals
     const refresh_token = generateRefreshToken(req.user._id);
     const access_token = generateAccessToken(req.user);
 
-    res.cookie("refresh_token", refresh_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    })
+    res.cookie("refresh_token", refresh_token, refreshTokenOptions)
         .status(200)
         .json({ message: "Facebook Login Successful", access_token });
 });

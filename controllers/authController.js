@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 const asyncHandler = require("../asyncHandler");
 const { generateAccessToken, generateRefreshToken } = require("../helpers/generateTokens");
+const refreshTokenOptions = require("../helpers/refreshTokenOptions");
 
 const generateImageKitObject = require("../helpers/generateImageKitObject");
 const { body, validationResult } = require("express-validator");
@@ -53,11 +54,7 @@ exports.register = [
         const refresh_token = generateRefreshToken(user._id);
         const access_token = generateAccessToken(user);
 
-        res.cookie("refresh_token", refresh_token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        })
+        res.cookie("refresh_token", refresh_token, refreshTokenOptions)
             .status(200)
             .json({ message: "Register Successful", access_token });
     }),
@@ -75,11 +72,7 @@ exports.login = asyncHandler(async (req, res, next) => {
     const refresh_token = generateRefreshToken(user._id);
     const access_token = generateAccessToken(user);
 
-    res.cookie("refresh_token", refresh_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    })
+    res.cookie("refresh_token", refresh_token, refreshTokenOptions)
         .status(200)
         .json({ message: "Login Successful", access_token });
 });
@@ -102,11 +95,7 @@ exports.demoLogin = asyncHandler(async (req, res, next) => {
     const refresh_token = generateRefreshToken(user._id);
     const access_token = generateAccessToken(user);
 
-    res.cookie("refresh_token", refresh_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    })
+    res.cookie("refresh_token", refresh_token, refreshTokenOptions)
         .status(200)
         .json({ message: "Demo Login Successful", access_token });
 });
