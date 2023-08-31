@@ -3,6 +3,7 @@ const Invite = require("../models/invite");
 const Friendship = require("../models/friendship");
 const Chat = require("../models/chat");
 const asyncHandler = require("../asyncHandler");
+const createError = require("http-errors");
 
 exports.index = asyncHandler(async (req, res, next) => {
     // Get all friendships of current user
@@ -35,14 +36,10 @@ exports.create = asyncHandler(async (req, res, next) => {
 
     // Check if invite with invite_id exists
     const invite = await Invite.findById(invite_id);
-    if (!invite) throw new Error("You have not been invited to be friends with this user");
+    if (!invite) throw createError(404, "Invite not found");
 
     // If the invitee is not the current user, return 403 Forbidden (can't accept invites for other users)
-    if (!invite.invitee.equals(req.user._id)) {
-        const error = new Error("Cannot accept invites for other users");
-        error.status = 403;
-        throw error;
-    }
+    if (!invite.invitee.equals(req.user._id)) throw createError(403, "You can't accept invites for other users");
 
     // Check if there already exists a friendship between the two users (inviter and invitee)
     const friendship_exists = await Friendship.findOne({
@@ -51,7 +48,7 @@ exports.create = asyncHandler(async (req, res, next) => {
             { user1: invite.inviter, user2: invite.invitee },
         ],
     });
-    if (friendship_exists) throw new Error("You are already friends with this user");
+    if (friendship_exists) throw createError(400, "Friendship already exists");
 
     // create a chat for the two users
     const chat = await Chat.create({ users: [invite.inviter, invite.invitee] });
@@ -73,7 +70,7 @@ exports.destroy = asyncHandler(async (req, res, next) => {
 
     const friendship = await Friendship.findById(id);
 
-    if (!friendship) throw new Error("Friendship not found");
+    if (!friendship) throw createError(404, "Friendship not found");
 
     // If the current user is not one of the users in the friendship, return 403 Forbidden (can't delete friendships of other users)
     if (!friendship.user1.equals(req.user._id) && !friendship.user2.equals(req.user._id)) return res.sendStatus(403);

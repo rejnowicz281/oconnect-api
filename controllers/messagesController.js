@@ -6,6 +6,7 @@ const Message = require("../models/message");
 const asyncHandler = require("../asyncHandler");
 
 const { body, validationResult } = require("express-validator");
+const { create } = require("../models/user");
 
 exports.create = [
     body("text")
@@ -28,13 +29,10 @@ exports.create = [
 
         const chat = await Chat.findById(chatId);
 
-        if (!chat) throw new Error("Chat not found");
+        if (!chat) throw createError(404, "Chat not found");
 
-        if (!chat.users.some((user) => user.equals(req.user._id))) {
-            const error = new Error("You are not authorized to send messages in this chat");
-            error.status = 403;
-            throw error;
-        }
+        if (!chat.users.some((user) => user.equals(req.user._id)))
+            throw createError(403, "You are not authorized to send messages in this chat");
 
         await Chat.updateOne(
             {
@@ -66,17 +64,14 @@ exports.destroy = asyncHandler(async (req, res, next) => {
 
     const chat = await Chat.findById(chatId);
 
-    if (!chat) throw new Error("Chat not found");
+    if (!chat) throw createError(404, "Chat not found");
 
-    if (!chat.users.some((user) => user.equals(req.user._id))) {
-        const error = new Error("You are not authorized to delete messages in this chat");
-        error.status = 403;
-        throw error;
-    }
+    if (!chat.users.some((user) => user.equals(req.user._id)))
+        throw createError(403, "You are not authorized to delete messages in this chat");
 
     const id = req.params.id;
 
-    if (!chat.messages.id(id)) throw new Error("Message not found");
+    if (!chat.messages.id(id)) throw createError(404, "Message not found");
 
     await Chat.updateOne(
         {

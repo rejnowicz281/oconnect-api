@@ -1,5 +1,6 @@
 const debug = require("debug")("app:postsController");
 const asyncHandler = require("../asyncHandler");
+const createError = require("http-errors");
 
 const Post = require("../models/post");
 const Friendship = require("../models/friendship");
@@ -88,17 +89,9 @@ exports.update = [
 
         const post = await Post.findById(id);
 
-        if (!post) {
-            const error = new Error("Post not found");
-            error.status = 404;
-            throw error;
-        }
+        if (!post) throw createError(404, "Post not found");
 
-        if (!post.user.equals(req.user._id)) {
-            const error = new Error("You are not authorized to update this post");
-            error.status = 403;
-            throw error;
-        }
+        if (!post.user.equals(req.user._id)) throw createError(403, "You are not authorized to update this post");
 
         // if req.files.photo exists, update photo and delete old photo from imagekit
         let photo;
@@ -140,11 +133,7 @@ exports.like = asyncHandler(async (req, res, next) => {
 
     const post = await Post.findById(id);
 
-    if (!post) {
-        const error = new Error("Post not found");
-        error.status = 404;
-        throw error;
-    }
+    if (!post) throw createError(404, "Post not found");
 
     // if user has already liked post, unlike post, else like post
     if (post.likes.includes(req.user._id)) {
@@ -165,13 +154,9 @@ exports.destroy = asyncHandler(async (req, res, next) => {
 
     const post = await Post.findById(id);
 
-    if (!post) throw new Error("Post not found");
+    if (!post) throw createError(404, "Post not found");
 
-    if (!post.user.equals(req.user._id)) {
-        const error = new Error("You are not authorized to delete this post");
-        error.status = 403;
-        throw error;
-    }
+    if (!post.user.equals(req.user._id)) throw createError(403, "You are not authorized to delete this post");
 
     // if post has photo, delete it from imagekit
     if (post.photo?.fileId) {

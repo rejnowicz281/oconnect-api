@@ -1,5 +1,6 @@
 const debug = require("debug")("app:commentsController");
 const asyncHandler = require("../asyncHandler");
+const createError = require("http-errors");
 
 const Comment = require("../models/comment");
 const Post = require("../models/post");
@@ -11,11 +12,7 @@ exports.index = asyncHandler(async (req, res, next) => {
 
     const post = await Post.findById(postId);
 
-    if (!post) {
-        const error = new Error("Post not found");
-        error.status = 404;
-        throw error;
-    }
+    if (!post) throw createError(404, "Post not found");
 
     const comments = await Comment.find({ post: postId }).populate("user", "first_name last_name avatar");
 
@@ -43,11 +40,7 @@ exports.create = [
 
         const post = await Post.findById(postId);
 
-        if (!post) {
-            const error = new Error("Post not found");
-            error.status = 404;
-            throw error;
-        }
+        if (!post) throw createError(404, "Post not found");
 
         const comment = await new Comment({
             text: req.body.text,
@@ -71,28 +64,17 @@ exports.destroy = asyncHandler(async (req, res, next) => {
 
     const post = await Post.findById(postId);
 
-    if (!post) {
-        const error = new Error("Post not found");
-        error.status = 404;
-        throw error;
-    }
+    if (!post) throw createError(404, "Post not found");
 
     const commentId = req.params.id;
 
     const comment = await Comment.findById(commentId);
 
-    if (!comment) {
-        const error = new Error("Comment not found");
-        error.status = 404;
-        throw error;
-    }
+    if (!comment) throw createError(404, "Comment not found");
 
     // only let the user who created the comment or the user who created the post delete the comment - else return 403 Forbidden
-    if (!comment.user.equals(req.user._id) && !post.user.equals(req.user._id)) {
-        const error = new Error("You are not authorized to delete this comment");
-        error.status = 403;
-        throw error;
-    }
+    if (!comment.user.equals(req.user._id) && !post.user.equals(req.user._id))
+        throw createError(403, "You are not authorized to delete this comment");
 
     await Comment.findByIdAndDelete(commentId);
 

@@ -4,6 +4,7 @@ const Friendship = require("../models/friendship");
 const Invite = require("../models/invite");
 const User = require("../models/user");
 const Post = require("../models/post");
+const createError = require("http-errors");
 
 exports.index = asyncHandler(async (req, res, next) => {
     const friendships = await Friendship.find({
@@ -52,7 +53,7 @@ exports.show = asyncHandler(async (req, res, next) => {
 
     const user = await User.findById(id).select("first_name last_name avatar");
 
-    if (!user) throw new Error("User not found");
+    if (!user) throw createError(404, "User not found");
 
     const [friendships, posts, invitesReceived, invitesSent] = await Promise.all([
         // Get this user's friendships

@@ -22,7 +22,7 @@ exports.updateAvatar = asyncHandler(async (req, res, next) => {
         avatar = await generateImageKitObject(req.files.avatar, "oconnect/avatars", true);
     }
 
-    if (!avatar) throw new Error("Please upload an image");
+    if (!avatar) throw createError(400, "Please upload an image");
 
     await User.findByIdAndUpdate(req.user._id, { avatar });
 
@@ -35,7 +35,7 @@ exports.updateAvatar = asyncHandler(async (req, res, next) => {
 });
 
 exports.resetAvatar = asyncHandler(async (req, res, next) => {
-    if (!req.user?.avatar?.fileId) throw new Error("Custom avatar not found");
+    if (!req.user?.avatar?.fileId) throw createError(400, "Custom avatar not found");
 
     imagekit
         .deleteFile(req.user.avatar.fileId)
