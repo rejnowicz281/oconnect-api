@@ -21,7 +21,7 @@ passport.use(
                 const newUser = new User({
                     provider: "https://www.github.com/",
                     subject: profile.id,
-                    first_name: profile.name?.givenName || profile.username.toUpperCase(),
+                    first_name: profile.name?.givenName || profile.username,
                     last_name: profile.name?.familyName || "Github",
                     avatar: { url: profile._json.avatar_url },
                 });
